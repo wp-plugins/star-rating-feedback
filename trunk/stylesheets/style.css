@@ -1,0 +1,214 @@
+/* feedback */
+.feedback-header{font-weight: bold;margin-bottom: 10px;margin-top: 10px;display: inline-block;}
+.feedback-filter h3 {font-family: HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', sans-serif;font-size: 23px;font-weight: normal;height: 34px;line-height: 29px;margin-bottom: 0px;margin-left: 0px;margin-right: 0px;margin-top: 0px;padding-bottom: 4px;padding-left: 0px;padding-right: 15px;padding-top: 9px;text-shadow: rgb(255, 255, 255) 0px 1px 0px;}
+.feedback-inline{display:inline-block;padding-bottom:10px;}
+.feedback-filter-header{margin:10px 0;}
+.feedback-row {width:auto;padding:10px 0;margin-right:20px;display: inline-block;float:left;}
+.feedback-filter label{display:inline-block;}
+.feedback-row-button {float:left;margin-right:20px;}
+table.admin-table th.ratingcount { width:120px;}
+table.admin-table th.date { width:160px;}
+table.admin-table th.delete { width:60px;}
+/* star */
+.star-rating {margin:20px 0;}
+.star-rating span,
+.star-rating span:hover{line-height: 1em !important;}
+.widget .star-rating {margin: 6px 0;}
+/* widget */
+#feedback [name="submit"]{
+  margin-top: 20px;
+}
+
+table.feedbackdashtable{width:100%;font-family: sans-serif;font-size: 12px;line-height: 16px;margin:0;padding:0;}
+table.feedbackdashtable td{padding:4px 0;}
+label.error{color:red;}
+
+
+.rating {
+  unicode-bidi: bidi-override;
+  direction: rtl;
+  font-size: 1.4em;
+  text-align: left;
+}
+/* star */
+.rating span.star,
+.rating span.fa-star {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+}
+.rating span.star:hover,
+.rating span.fa-star:hover  {
+  cursor: pointer;
+}
+.rating span.star:before,
+.rating span.fa-star:before  {
+  content: "\f006";
+  padding-right: 5px;
+  color: #777777;
+}
+.rating span.star:hover:before,
+.rating span.star:hover ~ span.star:before{
+  content: "\f005";
+  color: #F0B315;
+}
+.rating span.fa-star[data-number="1"]:before,
+.rating span.fa-star[data-number="2"]:before,
+.rating span.fa-star[data-number="3"]:before,
+.rating span.fa-star[data-number="4"]:before,
+.rating span.fa-star[data-number="5"]:before,
+.rating span.fa-star[data-number="6"]:before,
+.rating span.fa-star[data-number="7"]:before,
+.rating span.fa-star[data-number="8"]:before,
+.rating span.fa-star[data-number="9"]:before,
+.rating span.fa-star[data-number="10"]:before{
+	content: "\f005";
+	color: #F0B315;
+}
+
+/* Circle */
+.rating span.circle,
+.rating span.fa-circle {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+}
+.rating span.circle:hover,
+.rating span.fa-circle:hover  {
+  cursor: pointer;
+}
+.rating span.circle:before,
+.rating span.fa-circle:before  {
+  content: "\f10c";
+  padding-right: 5px;
+  color: #777777;
+}
+.rating span.circle:hover:before,
+.rating span.circle:hover ~ span.circle:before{
+  content: "\f111";
+  color: #F0B315;
+}
+.rating span.fa-circle[data-number="1"]:before,
+.rating span.fa-circle[data-number="2"]:before,
+.rating span.fa-circle[data-number="3"]:before,
+.rating span.fa-circle[data-number="4"]:before,
+.rating span.fa-circle[data-number="5"]:before,
+.rating span.fa-circle[data-number="6"]:before,
+.rating span.fa-circle[data-number="7"]:before,
+.rating span.fa-circle[data-number="8"]:before,
+.rating span.fa-circle[data-number="9"]:before,
+.rating span.fa-circle[data-number="10"]:before{
+  content: "\f111";
+  color: #F0B315;
+}
+/* heart */
+.rating span.heart,
+.rating span.fa-heart {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+}
+.rating span.heart:hover,
+.rating span.fa-heart:hover  {
+  cursor: pointer;
+}
+.rating span.heart:before,
+.rating span.fa-heart:before  {
+  content: "\f08a";
+  padding-right: 5px;
+  color: #777777;
+}
+.rating span.heart:hover:before,
+.rating span.heart:hover ~ span.heart:before{
+  content: "\f004";
+  color: #F0B315;
+}
+.rating span.fa-heart[data-number="1"]:before,
+.rating span.fa-heart[data-number="2"]:before,
+.rating span.fa-heart[data-number="3"]:before,
+.rating span.fa-heart[data-number="4"]:before,
+.rating span.fa-heart[data-number="5"]:before,
+.rating span.fa-heart[data-number="6"]:before,
+.rating span.fa-heart[data-number="7"]:before,
+.rating span.fa-heart[data-number="8"]:before,
+.rating span.fa-heart[data-number="9"]:before,
+.rating span.fa-heart[data-number="10"]:before{
+  content: "\f004";
+  color: #F0B315;
+}
+/* smile */
+.rating span.smile,
+.rating span.fa-smile {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+}
+.rating span.smile:hover,
+.rating span.fa-smile:hover  {
+  cursor: pointer;
+}
+.rating span.smile:before,
+.rating span.fa-smile:before  {
+  content: "\f118";
+  padding-right: 5px;
+  color: #777777;
+}
+.rating span.smile:hover:before,
+.rating span.smile:hover ~ span.smile:before{
+  content: "\f118";
+  color: #F0B315;
+}
+.rating span.fa-smile[data-number="1"]:before,
+.rating span.fa-smile[data-number="2"]:before,
+.rating span.fa-smile[data-number="3"]:before,
+.rating span.fa-smile[data-number="4"]:before,
+.rating span.fa-smile[data-number="5"]:before,
+.rating span.fa-smile[data-number="6"]:before,
+.rating span.fa-smile[data-number="7"]:before,
+.rating span.fa-smile[data-number="8"]:before,
+.rating span.fa-smile[data-number="9"]:before,
+.rating span.fa-smile[data-number="10"]:before{
+  content: "\f118";
+  color: #F0B315;
+}
+/* thumbs */
+.rating span.thumbs,
+.rating span.fa-thumbs {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+}
+.rating span.thumbs:hover,
+.rating span.fa-thumbs:hover  {
+  cursor: pointer;
+}
+.rating span.thumbs:before,
+.rating span.fa-thumbs:before  {
+  content: "\f164";
+  padding-right: 5px;
+  color: #777777;
+}
+.rating span.thumbs:hover:before,
+.rating span.thumbs:hover ~ span.thumbs:before{
+  content: "\f164";
+  color: #F0B315;
+}
+.rating span.fa-thumbs[data-number="1"]:before,
+.rating span.fa-thumbs[data-number="2"]:before,
+.rating span.fa-thumbs[data-number="3"]:before,
+.rating span.fa-thumbs[data-number="4"]:before,
+.rating span.fa-thumbs[data-number="5"]:before,
+.rating span.fa-thumbs[data-number="6"]:before,
+.rating span.fa-thumbs[data-number="7"]:before,
+.rating span.fa-thumbs[data-number="8"]:before,
+.rating span.fa-thumbs[data-number="9"]:before,
+.rating span.fa-thumbs[data-number="10"]:before{
+  content: "\f164";
+  color: #F0B315;
+}
+
