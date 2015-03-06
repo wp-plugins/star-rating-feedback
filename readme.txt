@@ -4,7 +4,7 @@ Donate link:
 Tags: UK Feedback Form, Feedback form, feedback, UK feedback, anonymous feedback, star rating, star rating feedback, star icons, comments
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 0.1
+Stable tag: 0.2
 
 This plugin allows you to add a Star Rating feedback form. Currently it is localised for use in the UK
  
