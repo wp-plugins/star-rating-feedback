@@ -164,9 +164,9 @@ PHP 5.2 and up.
 Simply use the <a href=\"http://wordpress.org/support/plugin/star-rating-feedback\">Support Forum</a> and thanks ahead for doing that.
 == Screenshots ==
 
-<img src="https://raw.githubusercontent.com/somme/wordpress-star-rating-plugin/master/star-rating-feedback/images/screen1.png" />
-<img src="https://raw.githubusercontent.com/somme/wordpress-star-rating-plugin/master/star-rating-feedback/images/screen2.png" />
-<img src="https://raw.githubusercontent.com/somme/wordpress-star-rating-plugin/master/star-rating-feedback/images/screen3.png" />
+1. Screen 1
+2. Screen 2
+3. Screen 3
 
 == Changelog ==
 
