@@ -4,7 +4,7 @@
     Plugin URI:
     Description: This plugin allows you to add a Star Rating feedback form. Currently it is localised for use in the UK
     Author: Stephen Scott & Somme Sakounthong
-    Version: 0.1
+    Version: 0.2
     Author URI:
     */
 
@@ -29,7 +29,7 @@
     program into proprietary programs.
 */
 global $feedback_db_version;
-$feedback_db_version = "1.0";
+$feedback_db_version = "1.2";
 
 //during plugin install create the feedback table
 function feedback_install() {
@@ -37,6 +37,7 @@ function feedback_install() {
    global $feedback_db_version;
       
    $sql = "CREATE TABLE IF NOT EXISTS `feedback` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
   `comment` varchar(600) DEFAULT NULL,
   `rating` int(11) DEFAULT NULL,
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -49,23 +50,51 @@ function feedback_install() {
    add_option( "feedback_db_version", $feedback_db_version );
 }
 
-//when the plugin is activated fun the install function
+//update feedback table
+function feedback_update() {
+
+    global $wpdb;
+    global $feedback_db_version;
+    $installed_ver = get_option( "feedback_db_version" );
+
+    if ( $installed_ver != $feedback_db_version ) {
+
+    	$wpdb->get_results($wpdb->prepare("ALTER TABLE feedback ADD id INT PRIMARY KEY AUTO_INCREMENT;"));
+
+    	update_option( "feedback_db_version", $feedback_db_version );
+    }
+
+}
+
+function myplugin_update_db_check() {
+    global $feedback_db_version;
+    if ( get_site_option( 'feedback_db_version' ) != $feedback_db_version ) {
+        feedback_update();
+    }
+}
+
+
+
+//when the plugin is activated run the install function
 register_activation_hook( __FILE__, 'feedback_install' );
 
+add_action( 'plugins_loaded', 'myplugin_update_db_check' );
 //initialise the plugin by adding references to the CSS and JS
 add_action('init','ava_test_init');
 //add the shortcode for the feedback form
 add_shortcode("feedback_form", "feedbackform_handler");
 
+//allow shortcode in text widget
+add_filter( 'widget_text', 'do_shortcode' );
+
 function ava_test_init() {
 
+    //wp_enqueue_style('font-awesome', 'http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
+    wp_enqueue_style('font-awesome', plugins_url('/stylesheets/font-awesome.min.css', __FILE__ ));
     wp_enqueue_style( 'jquery.datepick.css', plugins_url( '/stylesheets/jquery.datepick.css', __FILE__ ));
     wp_enqueue_style( 'style.css', plugins_url( '/stylesheets/style.css', __FILE__ ));
-    
-    //wp_enqueue_script( 'jquery.js', plugins_url( '/javascripts/jquery.js', __FILE__ ));
-    //wp_enqueue_script('jquery');
+
     wp_enqueue_script( 'jquery.validate.js', plugins_url( '/javascripts/jquery.validate.js', __FILE__ ), array('jquery'));
-    wp_enqueue_script( 'jquery.raty.js', plugins_url( '/javascripts/jquery.raty.js', __FILE__ ), array('jquery'));
     wp_enqueue_script( 'jquery.raty.min.js', plugins_url( '/javascripts/jquery.raty.min.js', __FILE__ ) , array('jquery'));
     wp_enqueue_script( 'jquery.datepick.js', plugins_url( '/javascripts/jquery.datepick.js', __FILE__ ) , array('jquery'));
     wp_enqueue_script( 'jquery.datepick-en-GB.js', plugins_url( '/javascripts/jquery.datepick-en-GB.js', __FILE__ ) , array('jquery'));
@@ -73,51 +102,79 @@ function ava_test_init() {
     
     $params = array(  'templateUrl' => plugins_url('/images',__FILE__));
     
-    wp_localize_script( 'jquery.raty.js', 'MyScriptParams', $params );
     wp_localize_script( 'jquery.raty.min.js', 'MyScriptParams', $params );
+    myplugin_update_db_check();
 }
 
-function feedbackform_handler() {
-   //run function that actually does the work of the plugin
-   $feedback_output = feedback_function();
-   //send back text to replace shortcode in post
-   return $feedback_output;
+function feedbackform_handler($atts) {
+  //set short code defaults
+  $atts = shortcode_atts(
+  array(
+      'type'        => 'icon',
+      'icon'        => 'star',
+      'color'       => '#777777',
+      'color_on'    => '#F0B315',
+      'colors'      => '#F0B315,#F0B315,#F0B315,#F0B315,#F0B315,#F0B315,#F0B315,#F0B315,#F0B315,#F0B315',
+      'size'        => '24px',
+      'question'    => 'How happy are you?',
+      'message'     => 'Thank you for providing your feedback.',
+      'comments'    => 'Feedback comments',
+      'amount'      => '5',
+      'hints'       => '1,2,3,4,5,6,7,8,9,10',
+      'staron'      => 'star-on.png',
+      'staroff'     => 'star-off.png'
+  ), $atts, 'feedback_form' );
+      $type         = $atts['type'];
+      $icon         = $atts['icon'];
+      $color        = $atts['color'];
+      $color_on     = $atts['color_on'];
+      $colors       = $atts['colors'];
+      $size         = $atts['size'];
+      $question     = $atts['question'];
+      $message      = $atts['message'];
+      $comments     = $atts['comments'];
+      $amount       = $atts['amount'];
+      $hints        = $atts['hints'];
+      $staron       = $atts['staron'];
+      $staroff      = $atts['staroff'];
+
+  $feedback_output = feedback_function($type, $icon, $color,  $color_on, $colors,  $size, $question, $message, $comments, $amount, $hints, $staron, $staroff);
+  return $feedback_output;
  }
 
- //function to create the feedback form when the shortcode is added to a page
-function feedback_function() {
+//function to create the feedback form when the shortcode is added to a page
+function feedback_function($type, $icon, $color, $color_on, $colors, $size, $question, $message, $comments, $amount, $hints, $staron, $staroff) {
    //process plugin
-   if (!isset($_POST['submit']))
-   {
-      $feedback_output = '<script type="text/javascript">
-				//var templateUrl = "' . plugins_url(__FILE__)  . '";
-			</script>';
+   if (!isset($_POST['submit'])){
+
+      //TO DO: noscript version based on amount of stars and hints
+
        $feedback_output .= "<form id='feedback' action='' method='post'>";
-       $feedback_output .= '<div class="row">
-              <div class="span8">
-                <span class="fauxLabel">How happy are you with the IRTL website?</span>
-                <noscript>
-                  <div class="twelve columns radio">
-                    <label for="vUnhappy" class="inline"><input type="radio" id="vUnhappy" value="1" name="happiness">Very unhappy</label> 
-                    <label for="unhappy" class="inline"><input type="radio" id="unhappy" value="2"  name="happiness">Unhappy</label> 
-                    <label for="fine" class="inline"><input type="radio" id="fine" value="3"  name="happiness">Fine</label>
-                    <label for="happy" class="inline"><input type="radio" id="happy" value="4"  name="happiness">Happy</label>
-                    <label for="vHappy" class="inline"><input type="radio" id="vHappy" value="5"  name="happiness">Very happy</label>
-                  </div>
-                </noscript>
-		<div id="star"></div>
-                <input type="hidden" id="rating" name="rating" value="0">
-                <label class="feedback-header" for="comments">Feedback comments <span class="visually-hidden">Optional</span></label>
-                <textarea id="comments" name="comments" placeholder="Message (optional)" rows="5" maxlength="500" class="span8"></textarea>
-              </div>
-            </div>';
+       $feedback_output .= '<div>
+                            <div>
+                              <h2 class="fauxLabel">' . $question . '</h2>
+                              <noscript>
+                                <div class="twelve columns radio">
+                                  <label for="vUnhappy" class="inli$ne"><input type="radio" id="vUnhappy" value="1" name="happiness">Very unhappy</label> 
+                                  <label for="unhappy" class="inline"><input type="radio" id="unhappy" value="2"  name="happiness">Unhappy</label> 
+                                  <label for="fine" class="inline"><input type="radio" id="fine" value="3"  name="happiness">Fine</label>
+                                  <label for="happy" class="inline"><input type="radio" id="happy" value="4"  name="happiness">Happy</label>
+                                  <label for="vHappy" class="inline"><input type="radio" id="vHappy" value="5"  name="happiness">Very happy</label>
+                                </div>
+                              </noscript>
+              		            <div class="star-rating" data-type="' . $type . '" data-icon="' . $icon . '"  data-color="' . $color . '" data-color-on="' . $color_on . '" data-colors="' . $colors . '" data-size="' . $size . '" data-amount="' . $amount . '" data-hints="' . $hints . '" data-staron="' . plugins_url('/images/',__FILE__) . $staron . '" data-staroff="' . plugins_url('/images/',__FILE__) . $staroff . '"></div>
+                              <input type="hidden" id="rating" name="rating" value="0">
+                              <label class="feedback-header" for="comments">' . $comments . '</label>
+                              <textarea id="comments" name="comments" placeholder="Message (optional)" rows="5" maxlength="500" class="span8"></textarea>
+                            </div>
+                          </div>';
        $feedback_output .= "<input type='submit' name='submit' value='Submit' />";
        $feedback_output .= "</form>";
    }
    else
    {
        //submit form data to the Database
-	$feedback_output = 'Thank you for providing your feedback.';
+	$feedback_output = '<p class="message">'. $message.'</p>';
         global $wpdb;
 	$comment = $_POST['comments'];
         $rating = 0;
@@ -137,14 +194,13 @@ function feedback_function() {
    return $feedback_output;
  }
 
-function xssafe($data,$encoding='UTF-8')
-        {
-                return htmlspecialchars($data,ENT_QUOTES | ENT_HTML401,$encoding);
-        }
-    function xecho($data)
-        {
-                echo stripslashes(xssafe($data));
-        }
+function xssafe($data,$encoding='UTF-8'){
+  return htmlspecialchars($data,ENT_QUOTES | ENT_HTML401,$encoding);
+}
+
+function xecho($data){
+  echo stripslashes(xssafe($data));
+}
 
 //display the Feedback admin form to allow the user to search feedback
 function feedback_page () {
@@ -156,6 +212,7 @@ function feedback_page () {
               <h3>Show feedback</h3>     
               </div>        
               <div class="feedback-inline">
+
                 <div class="feedback-row">
                   <label for="dateRange1" ><span class="visually-hidden">Show feedback from </span></label>
                   <input type="text" name="afterDate" id="dateRange1" value="<?php if (isset($_POST['afterDate'])) 
@@ -181,9 +238,12 @@ function feedback_page () {
                                                                               ?>">
                 </div>
                 <div class="feedback-row">
-                  <div class="feedback-row-button"><input type="submit" value="Refresh" class="button button-primary"></div>
+                  <div class="feedback-row-button"><input type="submit" value="Refresh" class="button button-secondary"></div>
+
               </div>
-  
+   <div class="feedback-row">
+               <div class="feedback-row-button"><input type="submit" name="deleteAll" value="Delete all messages" class="button button-secondary"></div>
+</div>
               </div>
      
   
@@ -194,13 +254,25 @@ function feedback_page () {
           <thead>
             <tr>
               <th scope="col" class="msg">Feedback message</th>
-              <th scope="col" class="rating">Rating</th>
+              <th scope="col" class="ratingcount">Rating</th>
               <th scope="col" class="date">Date</th>
+              <th scope="col" class="delete">Delete</th>
             </tr>
           </thead>
           <tbody>
             <?php
                 date_default_timezone_set('Europe/Dublin');
+                global $wpdb;
+
+                if ( isset( $_POST['deleteAll'] ) ) {
+                    $wpdb->get_results($wpdb->prepare("DELETE FROM feedback"));
+                }
+
+                if ( isset( $_POST['delete'] ) ) {
+                    $id_to_delete = $_POST['delete'];
+                    $wpdb->get_results($wpdb->prepare("DELETE FROM feedback WHERE id = %s", $id_to_delete));
+                }
+
                 //get the dates from the form
                 if (isset($_POST['beforeDate']) == false && isset($_POST['afterDate']) == false)
                 {
@@ -225,7 +297,7 @@ function feedback_page () {
                         );
                 
                 //get the feedback from the DB for the dates
-		global $wpdb;
+
 		$comments= $wpdb->get_results($wpdb->prepare("SELECT * FROM feedback
                                                         where date_added >= %s 
                                                         and date_added <= %s",
@@ -244,6 +316,7 @@ function feedback_page () {
                         $feedbackLarge = $comment -> comment;
                         $feedbackSmall = substr($feedbackLarge, 0, 100);
                         $date_added = $comment -> date_added;
+                        $id = $comment -> id;
                         
                         //alternate the colour
                         if ($colour == 0)
@@ -254,17 +327,21 @@ function feedback_page () {
                         //add class="alternate" to below tr for alternating colours
                         echo "<tr class='admin-table-row";
                         if ($colour == 1) 
-                            echo " alternate"; 
+                        echo " alternate"; 
                         echo "'>";
                         echo "<td scope='row'><DIV class=text-container><DIV class='text-content short-text'>";
-			xecho ($feedbackLarge);
-			echo "</DIV></DIV></td>";
-                        echo "<td scope='col'><img src='" . plugins_url('/images',__FILE__) . "/";
-			xecho ($rating);
-			echo "-stars.png' alt='$rating stars'></td>";
-			echo "<td scope='col'>";
-			xecho ($date_added);
-			echo "</td></tr>";
+                  			xecho ($feedbackLarge);
+                  			echo "</DIV></DIV></td>";
+                        echo "<td scope='col'>";
+                  			//xecho ($rating);
+                        getStars($rating);
+                  			echo "</td>";
+                  			echo "<td scope='col'>";
+                  			xecho ($date_added);
+                  			echo "</td><td><form class='filter feedback-filter' method='POST' action='' ><button type='submit' name='delete' value='";
+                  			echo $id;
+                  			echo "' class='btn'><i class='fa fa-trash-o'>";
+                        echo "</i></button></form></td></tr>";
                     }
                 }
 
@@ -349,23 +426,12 @@ function feedback_dashboard_widgets() {
 } 
 
 // Hook into the 'wp_dashboard_setup' action to register our other functions
-
 add_action('wp_dashboard_setup', 'feedback_dashboard_widgets' );
 
-function getStars($star)
-{
+function getStars($star){
     $roundStar = round($star);
-    if ($roundStar == 0)
-        echo '<img src="' . plugins_url('/images',__FILE__) . '/0-stars.png" alt="0stars" width="90" height="18">';
-    if ($roundStar == 1)
-        echo '<img src="' . plugins_url('/images',__FILE__) . '/1-stars.png" alt="1stars" width="90" height="18">';
-    if ($roundStar == 2)
-        echo '<img src="' . plugins_url('/images',__FILE__) . '/2-stars.png" alt="2stars" width="90" height="18">';
-    if ($roundStar == 3)
-        echo '<img src="' . plugins_url('/images',__FILE__) . '/3-stars.png" alt="3stars" width="90" height="18">';
-    if ($roundStar == 4)
-        echo '<img src="' . plugins_url('/images',__FILE__) . '/4-stars.png" alt="4stars" width="90" height="18">';
-    if ($roundStar == 5)
-        echo '<img src="' . plugins_url('/images',__FILE__) . '/5-stars.png" alt="5stars" width="90" height="18">';
+    for ($x = 1; $x <= $roundStar; $x++) {
+        echo '<i class="fa fa-star"></i>';
+    }
 }
 ?>
